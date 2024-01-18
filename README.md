@@ -7,11 +7,11 @@ Apuntes tomados del video : https://www.youtube.com/watch?v=_y9qQZXE24A&t
 
 
 
-## Deployment
+## Type Hints
 
 
 ```bash
-  npm run deploy
+  
 ```
 
 
