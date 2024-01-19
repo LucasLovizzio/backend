@@ -38,6 +38,7 @@ Llamar este programa nos muestra el siguiente output:
 ```bash
 John Doe
 ```
+
 Es un programa muy simple.
 
 Ahora, imagina que lo estás escribiendo desde ceros.
@@ -61,11 +62,15 @@ Tristemente, no obtienes nada útil:
 Vamos a modificar los primeros parametros de la funcion.
 En lugar de:
 
-```first_name, last_name```
+```bash
+first_name, last_name
+```
 
 cambiaremos a lo siguiente:
 
-```first_name: str, last_name: str```
+```bash
+first_name: str, last_name: str
+```
 
 Añadir los type hints normalmente no cambia lo que sucedería si ellos no estuviesen presentes.
 
