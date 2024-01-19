@@ -38,7 +38,6 @@ Llamar este programa nos muestra el siguiente output:
 ```bash
 John Doe
 ```
-
 Es un programa muy simple.
 
 Ahora, imagina que lo estás escribiendo desde ceros.
@@ -62,13 +61,13 @@ Tristemente, no obtienes nada útil:
 Vamos a modificar los primeros parametros de la funcion.
 En lugar de:
 
-```bash
+```
 first_name, last_name
 ```
 
 cambiaremos a lo siguiente:
 
-```bash
+```
 first_name: str, last_name: str
 ```
 
@@ -109,74 +108,4 @@ Con FastAPI declaras los parámetros con type hints y obtienes:
 [Video de Youtube de MoreDev](https://www.youtube.com/watch?v=_y9qQZXE24A&t)
 
 [Fast API](https://fastapi.tiangolo.com)
-
-
-    full_name = first_name.title() + " " + last_name.title()
-    return full_name
-
-
-print(get_full_name("john", "doe"))
-```
-
-Llamar este programa nos muestra el siguiente output:
-
-```bash
-John Doe
-```
-Es un programa muy simple.
-
-Ahora, imagina que lo estás escribiendo desde ceros.
-
-En algún punto habrías comenzado con la definición de la función, tenías los parámetros listos...
-
-Pero, luego tienes que llamar "ese método que convierte la primera letra en una mayúscula".
-
-Era `upper?` O era `uppercase?` `first_uppercase?` `capitalize?`
-
-Luego lo intentas con el viejo amigo de los programadores, el auto-completado del editor.
-
-Escribes el primer parámetro de la función `first_name`, luego un punto `(.)` y luego presionas `Ctrl+Space` para iniciar el auto-completado.
-
-Tristemente, no obtienes nada útil:
-
-![](https://fastapi.tiangolo.com/img/python-types/image01.png)
-
-### Añadir Type hints
-
-Vamos a modificar los primeros parametros de la funcion.
-En lugar de:
-
-```bash
-first_name, last_name
-```
-
-cambiaremos a lo siguiente:
-
-```bash
-first_name: str, last_name: str
-```
-
-Añadir los type hints normalmente no cambia lo que sucedería si ellos no estuviesen presentes.
-
-Pero ahora imagina que nuevamente estás creando la función, pero con los type hints.
-
-En el mismo punto intentas iniciar el `auto-completado` con `Ctrl+Space` y ves:
-
-![](https://fastapi.tiangolo.com/img/python-types/image02.png)
-
-Ahora podes buscar la funcion que desees y utilizarla.
-
-## Authors
-
-- [@LucasLovizzio](https://github.com/LucasLovizzio)
-
-
-
-## Documentation
-
-[Video de Youtube de MoreDev](https://www.youtube.com/watch?v=_y9qQZXE24A&t)
-
-[Fast API](https://fastapi.tiangolo.com)
-
-
 
