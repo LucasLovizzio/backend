@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 
 router = APIRouter(prefix="/products",                          # El prefijo de la ruta es /products y se agrega a todas las rutas de este archivo
-                   tags= "products",                      
+                   tags= ["products"],                      
                    responses ={ 404 : {"message":"No encontrado"}})
 
 products_list = ["Producto 1", "Producto 2",
