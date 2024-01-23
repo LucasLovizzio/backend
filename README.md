@@ -3,13 +3,7 @@
 
 Backend focalizado en Python, utilizando Fast API.
 
-Aparte de todo esto tambien hay apuntes de MongoDB y MongoDB Atlas.
-
-
-
-
-
-
+Aparte de todo esto también hay apuntes de MongoDB y MongoDB Atlas.
 ## Type Hint
 
 Python 3.6+ tiene soporte para "type hints" opcionales.
@@ -24,7 +18,7 @@ Pero, así nunca uses FastAPI te beneficiarás de aprender un poco sobre los typ
 
 Ejemplo:
 
-```bash
+```python
   def get_full_name(first_name, last_name):
     full_name = first_name.title() + " " + last_name.title()
     return full_name
@@ -35,9 +29,10 @@ print(get_full_name("john", "doe"))
 
 Llamar este programa nos muestra el siguiente output:
 
-```bash
+```python
 John Doe
 ```
+
 Es un programa muy simple.
 
 Ahora, imagina que lo estás escribiendo desde ceros.
@@ -61,13 +56,13 @@ Tristemente, no obtienes nada útil:
 Vamos a modificar los primeros parametros de la funcion.
 En lugar de:
 
-```
+```python
 first_name, last_name
 ```
 
 cambiaremos a lo siguiente:
 
-```
+```python
 first_name: str, last_name: str
 ```
 
@@ -79,33 +74,237 @@ En el mismo punto intentas iniciar el `auto-completado` con `Ctrl+Space` y ves:
 
 ![](https://fastapi.tiangolo.com/img/python-types/image02.png)
 
-Ahora podes buscar la funcion que desees y utilizarla.
+Ahora podes buscar la función que desees y utilizarla.
 
-## Type Hints en FastAPI
+### Type Hints en FastAPI
 
-FastAPI aprovecha estos type hints para hacer varias cosas.
+FastAPI aprovecha estos *type hints* para hacer varias cosas.
 
-Con FastAPI declaras los parámetros con type hints y obtienes:
+Con **FastAPI** declaras los parámetros con *type hints* y obtienes:
 
-* *Soporte en el editor*
-* *Type checks*.
+* **Soporte en el editor**
+* **Type checks**.
 
-...y FastAPI usa las mismas declaraciones para:
+...y **FastAPI** usa las mismas declaraciones para:
 
-* *Definir requerimientos*: desde request path parameters, query parameters, headers, bodies, dependencies, etc.
-* *Convertir datos: desde el request al tipo requerido.*
-* *Validar datos*: viniendo de cada request:
+* **Definir requerimientos**: desde request path parameters, query parameters, headers, bodies, dependencies, etc.
+* **Convertir datos:** desde el request al tipo requerido.
+* **Validar datos**: viniendo de cada request:
   * Generando errores automáticos devueltos al cliente cuando los datos son inválidos.
-* *Documentar la API usando OpenAPI*:
+* **Documentar la API usando OpenAPI**:
     * que en su caso es usada por las interfaces de usuario de la documentación automática e interactiva.
+
+## Creación de la API
+
+A la hora de crear una API, se utilizan métodos HTTP como: 
+
+* POST
+* GET
+* PUT
+* DELETE
+
+...y otros mas exóticos como:
+
+* OPTIONS
+* HEAD
+* PATCH
+* TRACE
+
+Normalmente usas uno de estos métodos específicos de HTTP para realizar una acción específica.
+
+* POST: para crear datos.
+* GET : para leer datos.
+* PUT : para actualizar datos.
+* DELETE : para borrar datos.
+
+## Primeros Pasos
+
+Archivo `main.py` con la función básica y url raíz `("/")` :
+### Raiz
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+```
+
+otro ejemplo ahora con la url `("/url")`
+
+```python
+@app.get("/url")                #URL local : http://127.0.0.1:8000/url/
+
+async def url():
+
+    return {"url" : "https://github.com/LucasLovizzio/apuntes-backend"}
+```
+
+### Parametros de Path
+
+Supongamos que tenemos usuarios guardados, pero no en `main.py` :
+
+![[users.png]]
+
+esta vez los guardaremos en `users.py` , por lo tanto lo mas básico seria tener los usuarios con sus **metadatos** guardados en una `List()`  :
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class User(BaseModel):
+
+    id : int
+    name: str
+    surname: str
+    age: int
+
+users_list = [User(id = 1, name="Lucas", surname="Lovizzio",age=19),
+              User(id = 2, name="Brais", surname="Moure", age=35),
+              User(id = 3, name="Ariel", surname="Vilche",age=40)]
+
+@app.get("/users")
+async def users():
+    return users_list
+```
+
+`Basemodel` es una librería que nos permite crear una clase sin tener que hacer el constructor que seria de la siguiente forma:
+
+```python
+class Persona:
+	def __init__(self, name, surname, age):
+		self.name = name
+		self.surname = surname
+		self.age = age
+		
+	# Podemos agregar funciones adicionales (getters)
+```
+
+Si buscamos por el `{id}` de la persona : 
+
+```python
+@app.get("/user/{id}")
+async def user(id: int):
+    user = filter(lambda user: user.id == id, users_list)
+    try:
+        return list(user)[0]
+    except:
+        return {"error":"No se ha encontrado el usuario"}
+```
+
+Siempre que el usuario sea el que ponga un dato que puede no estar hay que evitar los posibles errores que se puedan ocurrir con `try` y `except`. 
+
+Esta llamada por `{id}` la cual se realiza desde la `url` se los llama parametros por `path`.
+El valor del parámetro de path `id` será pasado a tu función como el argumento `id`.
+
+### Parámetros de Query
+
+Cuando declaras otros parámetros de la función que no hacen parte de los parámetros de path estos se interpretan automáticamente como parámetros de "query".
+
+El query es el conjunto de pares de key-value que van después del `?` en la URL, separados por caracteres `&`.
+
+Por ejemplo, en la URL:
+
+```
+http://127.0.0.1:8000/user/?id=1
+```
+resultado:
+```json
+{"id":1,"name":"Lucas","surname":"Lovizzio","age":19}
+```
+### Documentación de nuestra API
+
+Documentación con Swagger: http://127.0.0.1:8000/docs
+Documentación con Redocly: http://127.0.0.1:8000/redoc
+
+## POST - PUT - DELETE
+
+POST
+
+```python
+@app.post("/user/")
+
+async def user(user: User):
+
+    if type(buscar_usuario(user.id)) == User:         #comprobamos si el usuario ya esta en la lista de usuarios
+
+        return {"error":"No se ha encontrado el usuario"}       # Si ya esta tiramos un error
+
+    else:
+
+        users_list.append(user)                             # si no esta lo agregamos
+
+        return user
+```
+
+PUT
+
+```python
+@app.put("/user/")
+
+async def user(user: User):
+
+    found = False
+
+    for index, usuario_guardado in enumerate(users_list):
+
+        if usuario_guardado.id == user.id:
+
+            users_list[index] = user
+
+            found = True
+
+    if not found:
+
+        return {"error" : "No se ha encontrado el usuario"}
+
+    else:
+
+        return user
+```
+
+DELETE
+
+```python
+@app.delete("/user/{id}")
+
+async def user(id: int):
+
+    found = False
+
+    for index, usuario_guardado in enumerate(users_list):
+
+        if usuario_guardado.id == id:
+
+            del users_list[index]
+
+            found = True
+
+    if not found:
+
+        return {"error" : "No se ha encontrado el usuario"}
+
+    else:
+
+        return {"message" : "Usuario eliminado correctamente"}
+```
+
+## Codigos de estado HTTP
+
+## Routers
+
 ## Authors
 - [@LucasLovizzio](https://github.com/LucasLovizzio)
-
-
 
 ## Documentation
 
 [Video de Youtube de MoreDev](https://www.youtube.com/watch?v=_y9qQZXE24A&t)
 
 [Fast API](https://fastapi.tiangolo.com)
+
+[HTTP response status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
 
