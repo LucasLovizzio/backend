@@ -1,8 +1,9 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-app = FastAPI()
 
-#  iniciar el server: uvicorn usersjson:app --reload
+router = APIRouter()
+
+#  iniciar el server: uvicorn usersjson:router --reload
 
 # Entidad User
 class User(BaseModel):
@@ -21,35 +22,35 @@ def buscar_usuario(id : int):
 users_list = [User(id = 1, name="Lucas", surname="Lovizzio",age=19),
               User(id = 2, name="Brais", surname="Moure", age=35),
               User(id = 3, name="Ariel", surname="Vilche",age=40)]
-@app.get("/usersjson")
+@router.get("/usersjson")
 async def usersjson():
     return [{"name":"Lucas", "surname": "Lovizzio", "age" : 19},
             {"name":"Brais", "surname": "Moure", "age" : 35},
             {"name":"Moure", "surname": "Dev", "age" : 31}]
     
-@app.get("/users")
+@router.get("/users")
 async def users():
     return users_list
 
 # Buscar por Path
 
-@app.get("/user/{id}")
+@router.get("/user/{id}")
 async def user(id: int):
     return buscar_usuario(id)
 
 # Buscar por query
 
-@app.get("/user/")
+@router.get("/user/")
 async def user(id: int):
     return buscar_usuario(id)
 
 """ # añadir un nuevo usuario
 
-@app.post("/user/")
+@router.post("/user/")
 async def user(user : User):
     users_list.append(user)    # agregamos el usuario a la lista de usuarios """
     
-@app.post("/user/", status_code = 201)
+@router.post("/user/", status_code = 201)
 async def user(user: User):
     if type(buscar_usuario(user.id)) == User:    #comprobamos si el usuario ya esta en la lista de usuarios
         raise HTTPException(status_code=204, detail="El usuario ya existe")       # Si ya esta tiramos un error     # Si ya esta tiramos un error
@@ -58,7 +59,7 @@ async def user(user: User):
         return user
         
         
-@app.put("/user/")
+@router.put("/user/")
 async def user(user: User):
     
     found = False
@@ -73,7 +74,7 @@ async def user(user: User):
     else:
         return user
     
-@app.delete("/user/{id}")
+@router.delete("/user/{id}")
 async def user(id: int):
     found = False
     
