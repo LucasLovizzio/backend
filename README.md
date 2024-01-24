@@ -146,7 +146,7 @@ async def url():
 
 Supongamos que tenemos usuarios guardados, pero no en `main.py` :
 
-![[users.png]]
+![[Images/users.png]]
 
 esta vez los guardaremos en `users.py` , por lo tanto lo mas básico seria tener los usuarios con sus **metadatos** guardados en una `List()`  :
 
@@ -382,7 +382,7 @@ app.include_router(user.router)
 
 Suponiendo que tenemos la siguiente ruta: 
 
-![[Pasted image 20240124000544.png]]
+![[Images\Pasted image 20240124000544.png]]
 
 ```python
 from fastapi import FastAPI
