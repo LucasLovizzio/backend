@@ -295,7 +295,85 @@ async def user(id: int):
 
 ## Codigos de estado HTTP
 
+[HTTP response status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status)
+[Fast API - Response status code](https://fastapi.tiangolo.com/es/tutorial/response-status-code/#response-status-code)
 ## Routers
+
+Al crear una API, rara vez ponemos todo en un archivo:
+
+```
+.
+├── app
+│   ├── __init__.py
+│   ├── main.py
+│   ├── dependencies.py
+│   └── routers
+│   │   ├── __init__.py
+│   │   ├── items.py
+│   │   └── users.py
+│   └── internal
+│       ├── __init__.py
+│       └── admin.py
+```
+
+ya sea por legibilidad o porque queremos dividirlo de mejor manera. Para esto utilizaremos los `routers` .
+
+### API Router
+
+Digamos que el archivo dedicado a manejar solo usuarios es el submódulo en `/app/routers/users.py`.
+
+Desea tener las _operaciones de ruta_ relacionadas con sus usuarios separadas del resto del código, para mantenerlo organizado.
+
+Pero sigue siendo parte de la misma aplicación **FastAPI** / API web (es parte del mismo "Paquete Python").
+
+Puede crear las _operaciones de ruta_ para ese módulo usando `APIRouter`.
+
+### Importar API Router
+
+Lo importas y creas una instancia de la misma manera que lo harías con la clase `FastAPI`:
+
+```python
+from fastapi import APIRouter
+
+router = APIRouter()
+
+
+@router.get("/users/", tags=["users"])
+async def read_users():
+    return [{"username": "Rick"}, {"username": "Morty"}]
+
+
+@router.get("/users/me", tags=["users"])
+async def read_user_me():
+    return {"username": "fakecurrentuser"}
+
+
+@router.get("/users/{username}", tags=["users"])
+async def read_user(username: str):
+    return {"username": username}
+```
+
+Se usa de la misma manera que usabas la clase `FastAPI` para acceder a `app` 
+
+Una vez configurados los routers, los importamos  en el archivo `main.py` de la siguiente manera: 
+
+```python
+from routers import users
+```
+
+Si necesitamos agregar otros, simplemente, los importamos de la misma forma:
+
+```python
+from routers import products, users, user
+```
+
+Para que funcione con nuestra `app` que tenemos en `main.py` usamos la función `include_router(modulo.router)`. En este caso lo haremos de la siguiente manera:
+
+```python
+app.include_router(products.router)
+app.include_router(users.router)
+app.include_router(user.router)
+```
 
 ## Authors
 - [@LucasLovizzio](https://github.com/LucasLovizzio)
