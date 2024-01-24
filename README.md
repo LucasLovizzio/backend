@@ -375,6 +375,32 @@ app.include_router(users.router)
 app.include_router(user.router)
 ```
 
+## Recursos estáticos
+
+* Importar modulo `StaticFiles`
+* "Montar" una instancia de `StaticFiles` en un `path` especifico. 
+
+Suponiendo que tenemos la siguiente ruta: 
+
+![[Pasted image 20240124000544.png]]
+
+```python
+from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
+app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
+```
+
+La primera `"/static"`se refiere a la subruta en la que se "montará" esta "aplicación". Por lo tanto, cualquier `path` que comience `"/static"`será manejado por él.
+
+`directory="static"`: se refiere al nombre del directorio que contiene sus archivos estáticos.
+
+`name="static"` : le da un nombre que **FastAPI**  puede utilizar internamente .
+
+Todos estos parámetros pueden ser diferentes a " `static`", ajústelos con las necesidades y detalles específicos de su propia aplicación.
+
 ## Authors
 - [@LucasLovizzio](https://github.com/LucasLovizzio)
 
