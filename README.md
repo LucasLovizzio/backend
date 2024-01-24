@@ -382,7 +382,7 @@ app.include_router(user.router)
 
 Suponiendo que tenemos la siguiente ruta: 
 
-![](.Images/static.png)
+![](.Images/staticimage.png)
 
 ```python
 from fastapi import FastAPI
