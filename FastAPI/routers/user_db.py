@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-router = APIRouter(prefix="/user",                          # El prefijo de la ruta es /products y se agrega a todas las rutas de este archivo
-                   tags= ["user"],                      
+router = APIRouter(prefix="/userdb",                          # El prefijo de la ruta es /products y se agrega a todas las rutas de este archivo
+                   tags= ["userdb"],                      
                    responses ={ 404 : {"message":"No encontrado"}})
                    
 # Entidad User
