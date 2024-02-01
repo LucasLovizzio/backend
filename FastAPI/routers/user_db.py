@@ -14,7 +14,7 @@ router = APIRouter(prefix="/userdb",                          # El prefijo de la
 
 def buscar_usuario(field :str , key):
     try:
-        user = db_client.local.users.find_one({field : key})
+        user = db_client.users.find_one({field : key})
         return User(**user_schema(user))
     except:
         return {"error":"El usuario no existe"}
@@ -22,7 +22,7 @@ def buscar_usuario(field :str , key):
     
 def buscar_usuario_por_email(email : str):
     try:
-        user = db_client.local.users.find_one({"email" : email})
+        user = db_client.users.find_one({"email" : email})
         return User(**user_schema(user))
     except:
         return {"error":"El usuario ya existe"}
@@ -51,8 +51,8 @@ async def user(user : User):
     user_dict = dict(user)
     del user_dict["id"]
     
-    id = db_client.local.users.insert_one(user_dict).inserted_id
-    new_user = user_schema(db_client.local.users.find_one({"_id": id}))    
+    id = db_client.users.insert_one(user_dict).inserted_id
+    new_user = user_schema(db_client.users.find_one({"_id": id}))    
 
     return User(**new_user)
         
@@ -64,7 +64,7 @@ async def user(user: User):
     del user_dict["id"]
     
     try:
-        db_client.local.users.find_one_and_replace({"_id": ObjectId(user.id)}, user_dict)
+        db_client.users.find_one_and_replace({"_id": ObjectId(user.id)}, user_dict)
     except:
         {"error" : "El usuario no existe"}
     
@@ -74,7 +74,7 @@ async def user(user: User):
 @router.delete("/{id}", status_code = status.HTTP_204_NO_CONTENT) # status_code = 204 es para que nos devuelva el codigo 204 de que se ha eliminado correctamente
 async def user(id: str):
     
-    found = db_client.local.users.find_one_and_delete({"_id": ObjectId(id)})
+    found = db_client.users.find_one_and_delete({"_id": ObjectId(id)})
     
     if not found:
         raise HTTPException(

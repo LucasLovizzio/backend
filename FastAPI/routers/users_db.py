@@ -9,4 +9,4 @@ router = APIRouter(prefix="/usersdb",                          # El prefijo de l
                    
 @router.get("/", response_model=list[User], status_code= status.HTTP_200_OK)
 async def users():
-    return users_schema(db_client.local.users.find())
+    return users_schema(db_client.users.find())

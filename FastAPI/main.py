@@ -21,6 +21,6 @@ async def root():
 
 @app.get("/url")                #URL local : http://127.0.0.1:8000/url/
 async def url():
-    return {"url" : "https://github.com/LucasLovizzio/apuntes-backend"}   
+    return {"url" : "https://github.com/LucasLovizzio/backend"}   
 
 
