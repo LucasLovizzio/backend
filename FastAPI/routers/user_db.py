@@ -1,71 +1,81 @@
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, HTTPException, status
+from db.models.user import User
+from db.schemas.user import user_schema
+from db.client import db_client
+from bson import ObjectId                       # Importamos ObjectId para poder convertir el id de mongo a string
 
 router = APIRouter(prefix="/userdb",                          # El prefijo de la ruta es /products y se agrega a todas las rutas de este archivo
                    tags= ["userdb"],                      
-                   responses ={ 404 : {"message":"No encontrado"}})
-                   
+                   responses ={ status.HTTP_404_NOT_FOUND : {"message":"No encontrado"}})
+
+               
 # Entidad User
 
-class User(BaseModel):
-    id : int
-    name: str
-    surname: str
-    age: int
 
-def buscar_usuario(id : int):
-    user = filter(lambda user: user.id == id, users_list)
+def buscar_usuario(field :str , key):
     try:
-        return list(user)[0]
+        user = db_client.local.users.find_one({field : key})
+        return User(**user_schema(user))
     except:
-        return {"error":"No se ha encontrado el usuario"}
+        return {"error":"El usuario no existe"}
 
-users_list = [User(id = 1, name="Lucas", surname="Lovizzio",age=19),
-              User(id = 2, name="Brais", surname="Moure", age=35),
-              User(id = 3, name="Ariel", surname="Vilche",age=40)]
+    
+def buscar_usuario_por_email(email : str):
+    try:
+        user = db_client.local.users.find_one({"email" : email})
+        return User(**user_schema(user))
+    except:
+        return {"error":"El usuario ya existe"}
+
 
 # Buscar por Path
 
-""" @router.get("/{id}")
-async def user(id: int):
-    return buscar_usuario(id)
- """
+@router.get("/{id}")
+async def user(id: str):
+    return buscar_usuario("_id", ObjectId(id))
+
 # Buscar por query
 
 @router.get("/")
-async def user(id: int):
-    return buscar_usuario(id)
+async def user(id: str):
+    return buscar_usuario("_id", ObjectId(id))
 
-""" # añadir un nuevo usuario
-
-@router.post("/")
+    
+@router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)  # status_code = 201 es para que nos devuelva el codigo 201 de que se ha creado correctamente
 async def user(user : User):
-    users_list.append(user)    # agregamos el usuario a la lista de usuarios """
     
-@router.post("/", status_code = 201)  # status_code = 201 es para que nos devuelva el codigo 201 de que se ha creado correctamente
-async def user(user: User):
-    if type(buscar_usuario(user.id)) == User:    #comprobamos si el usuario ya esta en la lista de usuarios
-        raise HTTPException(status_code=204, detail="El usuario ya existe")       # Si ya esta tiramos un error     # Si ya esta tiramos un error
-    else:
-        users_list.append(user)                                 # si no esta lo agregamos
-        return user
+    if type(buscar_usuario("email", user.email)) == User:    #comprobamos si el usuario ya esta en la lista de usuarios
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="El usuario ya existe")       # Si ya esta tiramos un error
+
+    user_dict = dict(user)
+    del user_dict["id"]
+    
+    id = db_client.local.users.insert_one(user_dict).inserted_id
+    new_user = user_schema(db_client.local.users.find_one({"_id": id}))    
+
+    return User(**new_user)
         
         
-@router.put("/", status_code= 201) # status_code = 201 es para que nos devuelva el codigo 201 de que se ha creado correctamente
+@router.put("/", response_model = User, status_code= status.HTTP_201_CREATED) # status_code = 201 es para que nos devuelva el codigo 201 de que se ha creado correctamente
 async def user(user: User):
-    for index, usuario_guardado in enumerate(users_list):
-        if usuario_guardado.id == user.id:
-            users_list[index] = user
-            return user
-        else:
-            raise HTTPException(status_code=404, detail="El usuario no existe")
-            
     
-@router.delete("/{id}", status_code = 204) # status_code = 204 es para que nos devuelva el codigo 204 de que se ha eliminado correctamente
-async def user(id: int):
-    for index, usuario_guardado in enumerate(users_list):
-        if usuario_guardado.id == id:
-            del users_list[index]
-        else:
-            raise HTTPException(status_code=404, detail="El usuario no existe")
-   
+    user_dict = dict(user)
+    del user_dict["id"]
+    
+    try:
+        db_client.local.users.find_one_and_replace({"_id": ObjectId(user.id)}, user_dict)
+    except:
+        {"error" : "El usuario no existe"}
+    
+    return buscar_usuario("_id", ObjectId(user.id))
+
+    
+@router.delete("/{id}", status_code = status.HTTP_204_NO_CONTENT) # status_code = 204 es para que nos devuelva el codigo 204 de que se ha eliminado correctamente
+async def user(id: str):
+    
+    found = db_client.local.users.find_one_and_delete({"_id": ObjectId(id)})
+    
+    if not found:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="El usuario no existe")       # Si ya esta tiramos un error
